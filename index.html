@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HWID Protected Page</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- HWID Key Input Box -->
+    <div id="keyBox" class="keyBox">
+        <h2>Enter HWID Key to Unlock the Page</h2>
+        <input type="text" id="hwidInput" placeholder="Enter HWID key">
+        <button onclick="validateKey()">Submit</button>
+        <p id="result"></p>
+    </div>
+
+    <!-- Original Content Hidden Until HWID Validation -->
+    <div id="protectedContent" style="display: none;">
+        <!-- The rest of your original HTML content goes here -->
+        <h1>Welcome to Scooliosis</h1>
+        <!-- Add your existing HTML content here -->
+        <div>
+            <p>This content is hidden until HWID validation is successful.</p>
+            <!-- Rest of the page's content -->
+        </div>
+    </div>
+
+    <script>
+        function validateKey() {
+            var hwid = document.getElementById('hwidInput').value;
+
+            // Send HWID to the Flask API for validation
+            fetch('http://127.0.0.1:5000/validate_hwid', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ hwid: hwid })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'valid') {
+                    document.getElementById('result').innerHTML = "HWID Validated!";
+                    document.getElementById('protectedContent').style.display = 'block'; // Show content
+                    document.getElementById('keyBox').style.display = 'none';  // Hide key input box
+                } else {
+                    document.getElementById('result').innerHTML = "Invalid HWID. Please try again.";
+                }
+            })
+            .catch(error => {
+                document.getElementById('result').innerHTML = "Error connecting to the API.";
+            });
+        }
+    </script>
+</body>
+</html>
